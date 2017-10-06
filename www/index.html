@@ -1,0 +1,81 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src * data: gap: content: https://ssl.gstatic.com; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+    <script src="components/loader.js"></script>
+    <link rel="stylesheet" href="components/loader.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        $(function () {
+            //input要素を押されたときの処理
+            $("input").on("click", function () {
+                $("#gaikyo").html("");
+                $("#tenki").html("");
+                $("#city").html("");
+                //ｘｍｌファイルの指定
+                var ken = $(this).attr("xml_file");
+                //alert(ken);
+                //ajax通信
+                $.ajax({
+                    url: "http://weather.livedoor.com/forecast/webservice/json/v1?city=" + ken,
+                    tyoe: "GET",
+                    dataType: "json",
+                }).done(function (data) {   //通信成功時
+                    console.log(data);
+                    //天気の概況文
+                   
+                    $("#gaikyo").append(data.description.text);
+                    $("#gaikyo").append(data.description.publicTime);
+                    //連想配列の長さを得る
+                    console.log(Object.keys(data.forecasts).length);
+                    var jso_length = Object.keys(data.forecasts).length;
+
+                    var html = "";
+                    html += "<tr>";
+                    for (var i = 0; i < jso_length; i++) {
+                        html += '<td>' + data.forecasts[i].dateLabel + '<br><img src=' + data.forecasts[i].image.url + '><br>' + data.forecasts[i].image.title + '</td>';
+                    }
+                    html += "</tr>";
+                    $("#tenki").append(html);
+
+                   var html_ex = "";
+                    alert(Object.keys(data.pinpointLocations).length);
+                    var city_length = Object.keys(data.pinpointLocations).length;
+                    for (var x = 0; x < city_length; x++) {
+                        console.log(data.pinpointLocations[x].name);
+                        html_ex += '<tr><td><a href=' + data.pinpointLocations[x].link + '>' + data.pinpointLocations[x].name + '</a></td></tr>';
+                    }
+                    $("#city").append(html_ex);
+                    // $("#aaa").append("<video src='バジリスクタイム！！.mp4' autoplay loop></video>");
+                }).fail(function () { //ajaxの通信に失敗した場合
+
+                });
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <h1>天気予報</h1>
+    <!--県の選択用のボタン-->
+    <table id="select">
+        <tr>
+            <td><input type="button" id="kagawa" name="kagawa" value="香川県" xml_file="370000"></td>
+            <td><input type="button" id="ehieme" name="ehieme" value="愛媛県" xml_file="380010"></td>
+        </tr>
+        <tr>
+            <td><input type="button" id="tokusima" name="tokusima" value="徳島県" xml_file="360010"></td>
+            <td><input type="button" id="kouchi" name="kouchi" value="高知県" xml_file="390010"></td>
+        </tr>
+    </table>
+    <p> ここに天気予報を表示します </p>
+    <div id="gaikyo"></div>
+    <div id="tenki1"></div><br>
+    <table id="tenki"> </table>
+    <table id="city"> </table>
+</body>
+
+</html>
